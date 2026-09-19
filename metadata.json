@@ -1,0 +1,6 @@
+{
+  "name": "Resa AI Assistant",
+  "description": "Your intelligent beauty & cosmetics assistant - AI beauty consultations, contract manufacturing assistant, and analytics dashboard.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

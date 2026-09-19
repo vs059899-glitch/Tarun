@@ -1,0 +1,27 @@
+{
+  "sessions": [],
+  "events": [
+    {
+      "id": "ev_1789799572843_enq_sub",
+      "sessionId": "test_sess_4",
+      "eventType": "ENQUIRY_SUBMITTED",
+      "category": "Business",
+      "timestamp": "2026-09-19T06:32:52.843Z"
+    }
+  ],
+  "leads": [
+    {
+      "id": "lead_1789799572843_uah61",
+      "sessionId": "test_sess_4",
+      "fullName": "Priya Sharma",
+      "companyName": "Aura Botanicals",
+      "phone": "+91 98765 43210",
+      "email": "priya@aurabotanicals.com",
+      "productCategory": "Haircare",
+      "requirement": "Sulfate-free smoothing shampoo and argan hair mask",
+      "estimatedQuantity": "1,000 units",
+      "status": "New",
+      "createdAt": "2026-09-19T06:32:52.843Z"
+    }
+  ]
+}

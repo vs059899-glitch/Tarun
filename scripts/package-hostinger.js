@@ -59,9 +59,9 @@ const prodPkg = {
   name: pkg.name || 'resa-ai-assistant',
   version: pkg.version || '1.0.0',
   private: true,
-  type: 'module',
   scripts: {
-    start: 'node app.js',
+    start: 'node server.js',
+    'start:app': 'node app.js',
     'start:bundle': 'node dist/server.cjs'
   },
   dependencies: pkg.dependencies

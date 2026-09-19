@@ -1,5 +1,5 @@
 /**
- * Hostinger Entry Point: index.js
- * Forwards execution to app.js
+ * Hostinger Node.js Entry Point: index.js
+ * Forwards to server.js
  */
-import './app.js';
+require('./server.js');

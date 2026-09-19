@@ -1,6 +1,10 @@
 # ====================================================================
 # Hostinger LiteSpeed / Apache Configuration for Resa AI Assistant
-# Root-level configuration for Hostinger hPanel & LiteSpeed
+# ====================================================================
+# NOTE FOR HOSTINGER NODE.JS USERS:
+# If you created a Node.js Application in Hostinger hPanel, Hostinger
+# will auto-generate a "PASSENGER CONFIGURATION" block at the top of this
+# file. DO NOT DELETE THAT BLOCK - it tells LiteSpeed to run app.js!
 # ====================================================================
 
 <IfModule mod_rewrite.c>
@@ -14,14 +18,15 @@
   # 2. Prevent directory browsing
   Options -Indexes
 
-  # 3. If running as Node.js reverse proxy on port (e.g. 3000), un-comment below if not using hPanel Node.js manager:
-  # RewriteRule ^(.*)$ http://127.0.0.1:3000/$1 [P,L]
-
-  # 4. If serving static build from root / public_html:
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteCond %{REQUEST_URI} !^/api/
-  RewriteRule ^ index.html [QSA,L]
+  # 3. For Static / Shared hosting fallback (only if Node.js is NOT active):
+  # Check if index.html exists in the request directory
+  <IfModule !mod_passenger.c>
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} !^/api/
+    RewriteCond %{DOCUMENT_ROOT}/index.html -f
+    RewriteRule ^ index.html [QSA,L]
+  </IfModule>
 </IfModule>
 
 # Security Headers
@@ -29,4 +34,5 @@
   Header always set X-Content-Type-Options "nosniff"
   Header always set X-XSS-Protection "1; mode=block"
   Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
 </IfModule>

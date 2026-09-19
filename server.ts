@@ -18,7 +18,7 @@ function isValidEmail(email: unknown): boolean {
 
 async function startServer() {
   const app = express();
-  const PORT = Number(process.env.PORT) || 3000;
+  const PORT = 3000;
 
   app.use(express.json());
 
@@ -414,7 +414,15 @@ async function startServer() {
     res.send(csvData);
   });
 
-  // VITE OR STATIC ASSET SERVING
+  // Process exception guards to prevent crash on Hostinger Passenger
+  process.on('uncaughtException', (err) => {
+    console.error('[ResaServer] Uncaught Exception:', err);
+  });
+  process.on('unhandledRejection', (reason, promise) => {
+    console.error('[ResaServer] Unhandled Rejection at:', promise, 'reason:', reason);
+  });
+
+  // Vite middleware for development
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
       server: { middlewareMode: true },
@@ -422,15 +430,7 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    // Locate production build assets
-    const candidateDistPaths = [
-      path.join(process.cwd(), 'dist'),
-      path.join(__dirname, 'dist'),
-      __dirname,
-      path.join(process.cwd(), 'public_html')
-    ];
-    const distPath = candidateDistPaths.find(p => fs.existsSync(path.join(p, 'index.html'))) || path.join(process.cwd(), 'dist');
-
+    const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
@@ -438,7 +438,7 @@ async function startServer() {
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Resa AI Assistant server running on http://0.0.0.0:${PORT}`);
+    console.log(`Server running on http://localhost:${PORT}`);
   });
 }
 

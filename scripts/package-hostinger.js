@@ -28,6 +28,7 @@ fs.mkdirSync(outDir, { recursive: true });
 const filesToCopy = [
   'app.js',
   'server.js',
+  'index.js',
   'ecosystem.config.cjs',
   '.htaccess',
   '.env.example',

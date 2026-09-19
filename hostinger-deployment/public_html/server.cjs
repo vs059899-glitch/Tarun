@@ -24,7 +24,6 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 // server.ts
 var import_express = __toESM(require("express"), 1);
 var import_path2 = __toESM(require("path"), 1);
-var import_fs2 = __toESM(require("fs"), 1);
 var import_vite = require("vite");
 
 // server/db.ts
@@ -1294,7 +1293,7 @@ function isValidEmail(email) {
 }
 async function startServer() {
   const app = (0, import_express.default)();
-  const PORT = Number(process.env.PORT) || 3e3;
+  const PORT = 3e3;
   app.use(import_express.default.json());
   const validAdminTokens = /* @__PURE__ */ new Set();
   const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin";
@@ -1623,6 +1622,12 @@ async function startServer() {
     res.setHeader("Content-Disposition", `attachment; filename=resa_${type}_export_${Date.now()}.csv`);
     res.send(csvData);
   });
+  process.on("uncaughtException", (err) => {
+    console.error("[ResaServer] Uncaught Exception:", err);
+  });
+  process.on("unhandledRejection", (reason, promise) => {
+    console.error("[ResaServer] Unhandled Rejection at:", promise, "reason:", reason);
+  });
   if (process.env.NODE_ENV !== "production") {
     const vite = await (0, import_vite.createServer)({
       server: { middlewareMode: true },
@@ -1630,20 +1635,14 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    const candidateDistPaths = [
-      import_path2.default.join(process.cwd(), "dist"),
-      import_path2.default.join(__dirname, "dist"),
-      __dirname,
-      import_path2.default.join(process.cwd(), "public_html")
-    ];
-    const distPath = candidateDistPaths.find((p) => import_fs2.default.existsSync(import_path2.default.join(p, "index.html"))) || import_path2.default.join(process.cwd(), "dist");
+    const distPath = import_path2.default.join(process.cwd(), "dist");
     app.use(import_express.default.static(distPath));
     app.get("*", (req, res) => {
       res.sendFile(import_path2.default.join(distPath, "index.html"));
     });
   }
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Resa AI Assistant server running on http://0.0.0.0:${PORT}`);
+    console.log(`Server running on http://localhost:${PORT}`);
   });
 }
 startServer();

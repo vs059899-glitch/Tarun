@@ -170,3 +170,37 @@ After launching on Hostinger, you can verify your service status:
 - Health Check URL: `https://yourdomain.com/api/health`
 - Admin Dashboard URL: `https://yourdomain.com/` (Click **Admin Dashboard** in the top navigation bar)
 - Lead Capture Test: Type *"I want to start a haircare brand"* or click *"Save Consultation"* to test email dispatch to `vs059899@gmail.com`.
+
+---
+
+## 🛠️ How to Fix "503 Service Unavailable" on Hostinger
+
+A **503 Service Unavailable / 503 Service Temporarily Unavailable** on Hostinger Node.js is caused by one of three common configuration mismatches in hPanel:
+
+### Fix 1: Verify the Application Startup File in hPanel
+1. Go to **Advanced** → **Node.js** in Hostinger hPanel.
+2. Check the **Application startup file** field:
+   - Set it to: `app.js` (or `server.js` or `index.js`).
+   - We have provided all three (`app.js`, `server.js`, and `index.js`) in the root directory.
+3. Check the **Application root**:
+   - Ensure it points to the directory where `app.js` and `dist/` are located (usually `/` or `/public_html`).
+
+### Fix 2: Ensure the `dist/` Folder Was Uploaded
+Hostinger runs the compiled production bundle (`dist/server.cjs` and `dist/index.html`).
+- If you uploaded via `hostinger-deployment.zip`, the `dist/` folder is already built and included.
+- If you uploaded raw repository files without building, go to Hostinger hPanel → **Node.js** → **NPM Script** → select `build` → click **Run**.
+
+### Fix 3: Don't Delete the Passenger Block in `.htaccess`
+When you create a Node.js application in Hostinger hPanel, Hostinger automatically injects a block at the top of `.htaccess`:
+```apache
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION BEGIN
+PassengerAppRoot ...
+PassengerStartupFile app.js
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END
+```
+- If your `.htaccess` was replaced, open `.htaccess` in Hostinger File Manager and ensure Hostinger's Passenger block is intact at the very top.
+- Alternatively, toggle **Stop Application** and **Start Application** in hPanel → Node.js to re-generate Hostinger's Passenger configuration.
+
+### Fix 4: Click "Restart Application" in hPanel
+After uploading files or modifying `.env`, always click **Restart** (or **Stop** then **Start**) in the Hostinger Node.js manager so the web server connects to the newly launched process.
+

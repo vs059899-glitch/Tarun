@@ -1,5 +1,5 @@
 /**
- * Hostinger Alternative Entry Point (server.js)
- * Redirects to app.js
+ * Hostinger Entry Point: server.js
+ * Forwards execution to app.js
  */
 import './app.js';

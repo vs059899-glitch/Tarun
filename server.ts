@@ -430,16 +430,48 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.join(process.cwd(), 'dist');
+    const candidateDistPaths = [
+      path.join(process.cwd(), 'dist'),
+      path.join(__dirname, 'dist'),
+      __dirname,
+      path.join(process.cwd(), 'public_html'),
+      process.cwd()
+    ];
+    const distPath = candidateDistPaths.find(p => fs.existsSync(path.join(p, 'index.html'))) || path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
+      const indexPath = path.join(distPath, 'index.html');
+      if (fs.existsSync(indexPath)) {
+        res.sendFile(indexPath);
+      } else {
+        res.sendFile(path.join(process.cwd(), 'dist', 'index.html'));
+      }
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
+  // Handle port listening:
+  // In dev (AI Studio): strictly binds to 3000 on '0.0.0.0'
+  // In production (Hostinger/Passenger): binds directly to process.env.PORT or socket
+  const rawPort = process.env.NODE_ENV === 'production' && process.env.PORT
+    ? process.env.PORT
+    : 3000;
+
+  if (typeof rawPort === 'string' && isNaN(Number(rawPort))) {
+    app.listen(rawPort, () => {
+      console.log(`Resa AI Assistant listening on Passenger socket: ${rawPort}`);
+    });
+  } else {
+    const port = Number(rawPort);
+    if (process.env.NODE_ENV === 'production') {
+      app.listen(port, () => {
+        console.log(`Resa AI Assistant running on production port ${port}`);
+      });
+    } else {
+      app.listen(3000, '0.0.0.0', () => {
+        console.log(`Server running on http://localhost:3000`);
+      });
+    }
+  }
 }
 
 startServer();

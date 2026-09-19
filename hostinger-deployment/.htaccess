@@ -1,11 +1,6 @@
 # ====================================================================
 # Hostinger LiteSpeed / Apache Configuration for Resa AI Assistant
 # ====================================================================
-# NOTE FOR HOSTINGER NODE.JS USERS:
-# If you created a Node.js Application in Hostinger hPanel, Hostinger
-# will auto-generate a "PASSENGER CONFIGURATION" block at the top of this
-# file. DO NOT DELETE THAT BLOCK - it tells LiteSpeed to run app.js!
-# ====================================================================
 
 <IfModule mod_rewrite.c>
   RewriteEngine On
@@ -18,13 +13,11 @@
   # 2. Prevent directory browsing
   Options -Indexes
 
-  # 3. For Static / Shared hosting fallback (only if Node.js is NOT active):
-  # Check if index.html exists in the request directory
+  # 3. Static SPA fallback (when hosted statically without Node.js)
   <IfModule !mod_passenger.c>
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_URI} !^/api/
-    RewriteCond %{DOCUMENT_ROOT}/index.html -f
     RewriteRule ^ index.html [QSA,L]
   </IfModule>
 </IfModule>

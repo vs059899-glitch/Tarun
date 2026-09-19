@@ -43,10 +43,13 @@ for (const file of filesToCopy) {
   }
 }
 
-// 4. Copy dist directory
+// 4. Copy dist directory and root assets
 const srcDist = path.join(rootDir, 'dist');
 const destDist = path.join(outDir, 'dist');
 fs.cpSync(srcDist, destDist, { recursive: true });
+
+// Copy dist contents directly to outDir root so index.html is available immediately
+fs.cpSync(srcDist, outDir, { recursive: true });
 
 // 5. Generate lean production package.json for Hostinger
 const pkgRaw = fs.readFileSync(path.join(rootDir, 'package.json'), 'utf-8');

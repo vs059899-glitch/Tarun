@@ -1,0 +1,32 @@
+# ====================================================================
+# Hostinger LiteSpeed / Apache Configuration for Resa AI Assistant
+# Root-level configuration for Hostinger hPanel & LiteSpeed
+# ====================================================================
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # 1. Force HTTPS
+  RewriteCond %{HTTPS} off
+  RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # 2. Prevent directory browsing
+  Options -Indexes
+
+  # 3. If running as Node.js reverse proxy on port (e.g. 3000), un-comment below if not using hPanel Node.js manager:
+  # RewriteRule ^(.*)$ http://127.0.0.1:3000/$1 [P,L]
+
+  # 4. If serving static build from root / public_html:
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_URI} !^/api/
+  RewriteRule ^ index.html [QSA,L]
+</IfModule>
+
+# Security Headers
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-XSS-Protection "1; mode=block"
+  Header always set X-Frame-Options "SAMEORIGIN"
+</IfModule>

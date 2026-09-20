@@ -18,7 +18,6 @@ function isValidEmail(email: unknown): boolean {
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
 
   app.use(express.json());
 
@@ -430,22 +429,23 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
+    const baseDir = process.cwd();
     const candidateDistPaths = [
-      path.join(process.cwd(), 'dist'),
-      path.join(__dirname, 'dist'),
-      __dirname,
-      path.join(process.cwd(), 'public_html'),
-      process.cwd()
+      path.join(baseDir, 'dist'),
+      path.join(baseDir, 'public_html'),
+      baseDir
     ];
-    const distPath = candidateDistPaths.find(p => fs.existsSync(path.join(p, 'index.html'))) || path.join(process.cwd(), 'dist');
+    const distPath = candidateDistPaths.find(p => fs.existsSync(path.join(p, 'index.html'))) || path.join(baseDir, 'dist');
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
+      if (req.path.startsWith('/api')) {
+        return res.status(404).json({ error: 'API route not found' });
+      }
       const indexPath = path.join(distPath, 'index.html');
       if (fs.existsSync(indexPath)) {
-        res.sendFile(indexPath);
-      } else {
-        res.sendFile(path.join(process.cwd(), 'dist', 'index.html'));
+        return res.sendFile(indexPath);
       }
+      return res.status(404).send('Not Found');
     });
   }
 
@@ -458,19 +458,13 @@ async function startServer() {
 
   if (typeof rawPort === 'string' && isNaN(Number(rawPort))) {
     app.listen(rawPort, () => {
-      console.log(`Resa AI Assistant listening on Passenger socket: ${rawPort}`);
+      console.log(`Server running on Passenger socket: ${rawPort}`);
     });
   } else {
-    const port = Number(rawPort);
-    if (process.env.NODE_ENV === 'production') {
-      app.listen(port, () => {
-        console.log(`Resa AI Assistant running on production port ${port}`);
-      });
-    } else {
-      app.listen(3000, '0.0.0.0', () => {
-        console.log(`Server running on http://localhost:3000`);
-      });
-    }
+    const portNumber = Number(rawPort);
+    app.listen(portNumber, '0.0.0.0', () => {
+      console.log(`Server running on http://localhost:${portNumber}`);
+    });
   }
 }
 

@@ -1294,7 +1294,6 @@ function isValidEmail(email) {
 }
 async function startServer() {
   const app = (0, import_express.default)();
-  const PORT = 3e3;
   app.use(import_express.default.json());
   const validAdminTokens = /* @__PURE__ */ new Set();
   const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin";
@@ -1636,40 +1635,35 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
+    const baseDir = process.cwd();
     const candidateDistPaths = [
-      import_path2.default.join(process.cwd(), "dist"),
-      import_path2.default.join(__dirname, "dist"),
-      __dirname,
-      import_path2.default.join(process.cwd(), "public_html"),
-      process.cwd()
+      import_path2.default.join(baseDir, "dist"),
+      import_path2.default.join(baseDir, "public_html"),
+      baseDir
     ];
-    const distPath = candidateDistPaths.find((p) => import_fs2.default.existsSync(import_path2.default.join(p, "index.html"))) || import_path2.default.join(process.cwd(), "dist");
+    const distPath = candidateDistPaths.find((p) => import_fs2.default.existsSync(import_path2.default.join(p, "index.html"))) || import_path2.default.join(baseDir, "dist");
     app.use(import_express.default.static(distPath));
     app.get("*", (req, res) => {
+      if (req.path.startsWith("/api")) {
+        return res.status(404).json({ error: "API route not found" });
+      }
       const indexPath = import_path2.default.join(distPath, "index.html");
       if (import_fs2.default.existsSync(indexPath)) {
-        res.sendFile(indexPath);
-      } else {
-        res.sendFile(import_path2.default.join(process.cwd(), "dist", "index.html"));
+        return res.sendFile(indexPath);
       }
+      return res.status(404).send("Not Found");
     });
   }
   const rawPort = process.env.NODE_ENV === "production" && process.env.PORT ? process.env.PORT : 3e3;
   if (typeof rawPort === "string" && isNaN(Number(rawPort))) {
     app.listen(rawPort, () => {
-      console.log(`Resa AI Assistant listening on Passenger socket: ${rawPort}`);
+      console.log(`Server running on Passenger socket: ${rawPort}`);
     });
   } else {
-    const port = Number(rawPort);
-    if (process.env.NODE_ENV === "production") {
-      app.listen(port, () => {
-        console.log(`Resa AI Assistant running on production port ${port}`);
-      });
-    } else {
-      app.listen(3e3, "0.0.0.0", () => {
-        console.log(`Server running on http://localhost:3000`);
-      });
-    }
+    const portNumber = Number(rawPort);
+    app.listen(portNumber, "0.0.0.0", () => {
+      console.log(`Server running on http://localhost:${portNumber}`);
+    });
   }
 }
 startServer();

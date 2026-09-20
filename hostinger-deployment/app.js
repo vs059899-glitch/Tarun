@@ -1,23 +1,27 @@
 /**
  * Hostinger Node.js Entry Point: app.js
- * 
- * 100% Top-Level-Await-Free CommonJS implementation.
- * Compatible with all Node.js versions (14+, 16+, 18+, 20+, 22+)
+ * Compatible with Node.js ESM (package.json "type": "module")
  * and Phusion Passenger on Hostinger / LiteSpeed / cPanel.
  */
 
-const fs = require('fs');
-const path = require('path');
-const http = require('http');
+import fs from 'node:fs';
+import path from 'node:path';
+import http from 'node:http';
+import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Force production environment
 process.env.NODE_ENV = 'production';
 
 // Safety crash guards to keep the Hostinger worker process alive
-process.on('uncaughtException', function (err) {
+process.on('uncaughtException', (err) => {
   console.error('[Hostinger] Uncaught Exception:', err);
 });
-process.on('unhandledRejection', function (reason) {
+process.on('unhandledRejection', (reason) => {
   console.error('[Hostinger] Unhandled Rejection:', reason);
 });
 
@@ -39,11 +43,10 @@ for (let i = 0; i < candidateBundlePaths.length; i++) {
 
 if (bundlePath) {
   console.log('[Hostinger] Starting Resa AI Assistant from: ' + bundlePath);
-  // Synchronous CommonJS require - NO top-level await
   require(bundlePath);
 } else {
   console.warn('[Hostinger] dist/server.cjs not found. Starting fallback listener on PORT.');
-  const server = http.createServer(function (req, res) {
+  const server = http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
     res.end(
       '<!DOCTYPE html><html><head><title>Resa AI Assistant</title></head>' +
@@ -51,7 +54,7 @@ if (bundlePath) {
       '<h2 style="color:#4338ca;">Resa AI Assistant Backend is Online</h2>' +
       '<p>Hostinger Node.js application is active (Port: ' + (process.env.PORT || 3000) + ').</p>' +
       '<p>The precompiled bundle <code>dist/server.cjs</code> was not found in this folder.</p>' +
-      '<p><strong>Quick Fix:</strong> Upload the <code>dist/</code> folder or run <code>npm run build</code> in Hostinger hPanel.</p>' +
+      '<p><strong>Quick Fix:</strong> Run <code>npm run build</code> in Hostinger SSH / hPanel terminal.</p>' +
       '</body></html>'
     );
   });
@@ -60,6 +63,8 @@ if (bundlePath) {
   if (isNaN(Number(rawPort))) {
     server.listen(rawPort);
   } else {
-    server.listen(Number(rawPort));
+    server.listen(Number(rawPort), '0.0.0.0', () => {
+      console.log(`Fallback server listening on port ${rawPort}`);
+    });
   }
 }
